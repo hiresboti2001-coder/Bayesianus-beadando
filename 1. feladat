@@ -1,0 +1,237 @@
+// ------------------------------
+// I. feladat
+// ------------------------------
+// ------------------------------
+// 1. Alapadatok
+// ------------------------------
+
+var foglalkozasok = ['könyvtáros', 'tanár'];
+var tulajdonsagok = ['csendes', 'cserfes'];
+var kapcsolatok = ['és', 'vagy'];
+
+// ------------------------------
+// 2. Segédfüggvények
+// ------------------------------
+
+// q valószínűséggel felcseréli a csendes/cserfes szót
+var csereTulajdonsag = function(szo, q) {
+  return flip(q) ? 
+    (szo === 'csendes' ? 'cserfes' : 'csendes') : 
+    szo;
+};
+
+// Véletlen feladat generálása
+var sorsolFeladat = function() {
+  return {
+    foglalkozas: uniformDraw(foglalkozasok),
+    kapcsolat: uniformDraw(kapcsolatok),
+    premisszaTulajdonsag: uniformDraw(tulajdonsagok),
+    konkluzioTulajdonsag: uniformDraw(tulajdonsagok)
+  };
+};
+
+// A feladat szöveges alakja
+var feladatSzoveg = function(f) {
+  return 'Panni ' + f.foglalkozas + ' ' + f.kapcsolat + ' ' +
+         f.premisszaTulajdonsag + '. Tehát Panni ' +
+         f.konkluzioTulajdonsag + '.';
+};
+
+// Szép szöveg logikai ítélethez
+var iteletSzoveg = function(x) {
+  return x ? 'érvényes' : 'nem érvényes';
+};
+
+// ------------------------------
+// 3. Helyes logikai ítélet
+// ------------------------------
+
+var logikaSzerint = function(f) {
+  if (f.kapcsolat === 'és') {
+    return f.premisszaTulajdonsag === f.konkluzioTulajdonsag;
+  } else {
+    return false;
+  }
+};
+
+// ------------------------------
+// 4. A diszkalkuliás ágens ítélete
+// ------------------------------
+
+var agensSzerint = function(f, q) {
+  var belsoPremissza = csereTulajdonsag(f.premisszaTulajdonsag, q);
+  var belsoKonkluzio = csereTulajdonsag(f.konkluzioTulajdonsag, q);
+
+  if (f.kapcsolat === 'és') {
+    return belsoPremissza === belsoKonkluzio;
+  } else {
+    return false;
+  }
+};
+
+// ------------------------------
+// 5. Egyetlen futás részletesen
+// ------------------------------
+
+var egyFutas = function(q) {
+  var f = sorsolFeladat();
+
+  var belsoPremissza = csereTulajdonsag(f.premisszaTulajdonsag, q);
+  var belsoKonkluzio = csereTulajdonsag(f.konkluzioTulajdonsag, q);
+
+  var helyesItelet = logikaSzerint(f);
+
+  var agensItelet = (f.kapcsolat === 'és') ?
+    (belsoPremissza === belsoKonkluzio) :
+    false;
+
+  var joValasz = (helyesItelet === agensItelet);
+
+  return {
+    feladat: feladatSzoveg(f),
+    agensFejeben:
+      'Panni ' + f.foglalkozas + ' ' + f.kapcsolat + ' ' +
+      belsoPremissza + '. Tehát Panni ' + belsoKonkluzio + '.',
+    logika: iteletSzoveg(helyesItelet),
+    agens: iteletSzoveg(agensItelet),
+    joValasz: joValasz
+  };
+};
+
+// ------------------------------
+// 6. Mit ad vissza a modell?
+// ------------------------------
+
+// Milyen feladatokat sorsol a program?
+viz(Infer({
+  method: 'enumerate',
+  model: function() {
+    return feladatSzoveg(sorsolFeladat());
+  }
+}));
+
+// Egy fix q mellett az ágens milyen ítéletet ad?
+viz(Infer({
+  method: 'enumerate',
+  model: function() {
+    return iteletSzoveg(agensSzerint(sorsolFeladat(), 0.2));
+  }
+}));
+
+// Egy fix q mellett milyen gyakran helyes az ágens?
+viz(Infer({
+  method: 'enumerate',
+  model: function() {
+    return egyFutas(0.2).joValasz ? 'helyes' : 'hibás';
+  }
+}));
+
+// Egy fix q mellett együtt is nézzük a két ítéletet
+viz(Infer({
+  method: 'enumerate',
+  model: function() {
+    var e = egyFutas(0.2);
+    return 'logika: ' + e.logika + ' | ágens: ' + e.agens;
+  }
+}));
+
+// ------------------------------
+// 7. Segédfüggvény egy szám kiolvasásához
+// ------------------------------
+
+var igazValoszinuseg = function(eloszlas) {
+  return Math.exp(eloszlas.score(true));
+};
+
+// ------------------------------
+// 8. Ezt kell majd a hallgatóknak megírni
+// ------------------------------
+
+// Összesített pontosság
+var pontossag = function(q) {
+  var eloszlas = Infer({
+    method: 'enumerate',
+    model: function() {
+      return egyFutas(q).joValasz;
+    }
+  });
+
+  return igazValoszinuseg(eloszlas);
+};
+
+// ------------------------------
+// 9. Minta futtatás
+// ------------------------------
+
+print('Összesített pontosság q = 0.2 esetén:');
+print(pontossag(0.2));
+
+// ------------------------------
+// 10. HALLGATÓI FELADAT
+// ------------------------------
+//
+// 1. Írd meg a pontossagEs(q) függvényt úgy,
+//    hogy csak azokat az eseteket vegye figyelembe,
+//    ahol a premisszában a kapcsolat 'és'.
+//
+// 2. Írd meg a pontossagVagy(q) függvényt úgy,
+//    hogy csak azokat az eseteket vegye figyelembe,
+//    ahol a premisszában a kapcsolat 'vagy'.
+//
+// 3. Írasd ki print segítségével a következő q értékekre:
+//    0, 0.1, 0.2, 0.3, 0.4, 0.5
+//
+//    - pontossag(q)
+//    - pontossagEs(q)
+//    - pontossagVagy(q)
+//
+// 4. Röviden értelmezd, mit mutatnak az eredmények.
+
+// Csak 'és' esetek
+var pontossagEs = function(q) {
+  var eloszlas = Infer({
+    method: 'enumerate',
+    model: function() {
+      var f = sorsolFeladat();
+      condition(f.kapcsolat === 'és');
+      return egyFutas(q).joValasz;
+    }
+  });
+
+  return igazValoszinuseg(eloszlas);
+};
+
+// Csak 'vagy' esetek
+var pontossagVagy = function(q) {
+  var eloszlas = Infer({
+    method: 'enumerate',
+    model: function() {
+      var f = sorsolFeladat();
+      condition(f.kapcsolat === 'vagy');
+      return egyFutas(q).joValasz;
+    }
+  });
+
+  return igazValoszinuseg(eloszlas);
+};
+
+// Táblázat
+var qs = [0, 0.1, 0.2, 0.3, 0.4, 0.5];
+
+map(function(q) {
+  print('q = ' + q);
+  print('pontossag: ' + pontossag(q));
+  print('pontossagEs: ' + pontossagEs(q));
+  print('pontossagVagy: ' + pontossagVagy(q));
+  print('---');
+}, qs);
+
+print('--- ÉRTELMEZÉS ---');
+
+print('A pontosság csökken, ahogy nő q, mert az ágens egyre gyakrabban cseréli fel a tulajdonságokat.');
+
+print('Az "és" esetekben a hiba számít, mert ott tényleg összehasonlítunk két tulajdonságot.');
+
+print('A "vagy" esetekben a logika szerint mindig hamis a következtetés, ezért az ágens szinte mindig helyes marad.');
+
+print('Összességében a hiba főleg az "és" típusú feladatokat rontja.');
