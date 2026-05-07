@@ -227,19 +227,60 @@ print(atlagosSuly());
 //    - hogyan viszonyul a becsült valódi súly
 //      a 22 g-os és a 17 g-os feltevéshez.
 //
-print('Egészséges: ' + pEgeszseges());
-print('Beteg: ' + pBeteg());
-print('Átlag súly: ' + atlagosSuly());
+
+// ------------------------------
+// 10. EREDMÉNYEK ÉRTELMEZÉSE
+// ------------------------------
+
+// A valódi súly átlagának kiszámítása
+// (külön mintavétellel, hogy biztosan működjön)
+var sulyMintak = repeat(3000, function() {
+  return sample(sulyPoszterior);
+});
+
+var becsultAtlagSuly = atlag(sulyMintak);
 
 print('--- ÉRTELMEZÉS ---');
 
+// Melyik modell valószínűbb?
 if (pEgeszseges() > pBeteg()) {
-  print('Az adatok inkább az egészséges modellt támogatják.');
+
+  print('Az adatok alapján az egészséges modell a valószínűbb.');
+
+  print('Ez azt jelenti, hogy a mért súlyok');
+  print('közelebb állnak a 22 gramm körüli');
+  print('egészséges állatokhoz.');
+
 } else {
-  print('Az adatok inkább a beteg modellt támogatják.');
+
+  print('Az adatok alapján a beteg modell a valószínűbb.');
+
+  print('Ez azt jelenti, hogy a mért súlyok');
+  print('közelebb állnak a 17 gramm körüli');
+  print('beteg állatokhoz.');
 }
 
-print('Az egészséges modell valószínűsége: ' + pEgeszseges());
-print('A beteg modell valószínűsége: ' + pBeteg());
+// Mennyire biztos a döntés?
+var kulonbseg = Math.abs(
+  pEgeszseges() - pBeteg()
+);
 
-print('A becsült valódi súly az átlag körül van, ami közelebb esik a valószínűbb modellhez.');
+if (kulonbseg > 0.8) {
+
+  print('A döntés nagyon egyértelmű.');
+
+} else if (kulonbseg > 0.4) {
+
+  print('A döntés viszonylag egyértelmű.');
+
+} else {
+
+  print('A két modell között nincs nagy különbség.');
+}
+
+// A valódi súly értelmezése
+print('A becsült valódi súly:');
+print(becsultAtlagSuly);
+
+print('Ez az érték a két prior modell közül');
+print('a valószínűbb modellhez áll közelebb.');
