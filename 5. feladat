@@ -1,0 +1,18 @@
+var pakli = _.range(52);
+
+var kiralyok = [0,1,2,3]; // jelölés
+
+var huzas = function() {
+  var lap1 = uniformDraw(pakli);
+  var maradek = filter(function(x){return x !== lap1}, pakli);
+  var lap2 = uniformDraw(maradek);
+
+  var egyikKiraly = (lap1 < 4 && lap2 >= 4) || (lap2 < 4 && lap1 >= 4);
+
+  return egyikKiraly;
+};
+
+viz(Infer({
+  method: 'enumerate',
+  model: huzas
+}));
