@@ -230,3 +230,16 @@ print(atlagosSuly());
 print('Egészséges: ' + pEgeszseges());
 print('Beteg: ' + pBeteg());
 print('Átlag súly: ' + atlagosSuly());
+
+print('--- ÉRTELMEZÉS ---');
+
+if (pEgeszseges() > pBeteg()) {
+  print('Az adatok inkább az egészséges modellt támogatják.');
+} else {
+  print('Az adatok inkább a beteg modellt támogatják.');
+}
+
+print('Az egészséges modell valószínűsége: ' + pEgeszseges());
+print('A beteg modell valószínűsége: ' + pBeteg());
+
+print('A becsült valódi súly az átlag körül van, ami közelebb esik a valószínűbb modellhez.');
