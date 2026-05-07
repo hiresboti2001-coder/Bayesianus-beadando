@@ -282,3 +282,13 @@ print(pBetegJol());
 print(pHibasMerleg());
 print(atlagosSuly());
 print(atlagosEltolas());
+
+print('--- ÉRTELMEZÉS ---');
+
+print('Az adatok többféleképpen magyarázhatók: vagy Csofi beteg, vagy a mérleg csal.');
+
+print('Ha a hibás mérleg modell valószínűsége magas, akkor a mérések inkább torzítottak, nem feltétlenül a valódi súly alacsony.');
+
+print('A becsült eltolas negatív, ami azt jelzi, hogy a mérleg lefelé torzíthat.');
+
+print('Ez a modell megmutatja, hogy a Bayes-féle megközelítés képes több lehetséges magyarázatot egyszerre kezelni.');
